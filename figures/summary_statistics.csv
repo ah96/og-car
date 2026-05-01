@@ -1,0 +1,17 @@
+,,precision_at_k,precision_at_k,recall_at_k,recall_at_k,feasibility_recovery,feasibility_recovery,cost_improvement,cost_improvement,deviation_reduction,deviation_reduction,admissibility_at_k,admissibility_at_k
+,,mean,std,mean,std,mean,std,mean,std,mean,std,mean,std
+scenario,method,,,,,,,,,,,,
+deviation,distance,1.0,0.0,1.0,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,1.0,0.0
+deviation,object_attribution,0.5,0.0,0.5,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,0.5,0.0
+deviation,occupancy,1.0,0.0,1.0,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,1.0,0.0
+deviation,ogcar,1.0,0.0,1.0,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,1.0,0.0
+deviation,random,1.0,0.0,1.0,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,1.0,0.0
+deviation,semantic,1.0,0.0,1.0,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,1.0,0.0
+deviation,unconstrained,1.0,0.0,1.0,0.0,0.0,0.0,8.0,0.0,0.9615384615384615,0.0,1.0,0.0
+failure,distance,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0
+failure,object_attribution,0.5,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0384615384615384,0.0,1.0,0.0
+failure,occupancy,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0
+failure,ogcar,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0
+failure,random,0.35,0.24152294576982397,0.7,0.48304589153964794,0.9,0.31622776601683794,0.0,0.0,0.22692307692307687,0.40762376459773025,1.0,0.0
+failure,semantic,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,0.0
+failure,unconstrained,0.5,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0384615384615384,0.0,0.5,0.0
