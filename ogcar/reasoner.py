@@ -73,7 +73,6 @@ class OGCarReasoner:
         baseline_deviation = route_overlap_deviation(baseline.path, env.reference_path)
 
         factors: List[ExplanationFactor] = []
-        object_by_id = {obj.object_id: obj for obj in env.objects}
 
         for obj in env.objects:
             for intervention in self.ontology.candidate_interventions(obj):

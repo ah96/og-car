@@ -104,7 +104,7 @@ def generate_environment(
         place_object(grid, obj, "cart")
 
     # Add distractors to free cells not on the central route-critical positions.
-    free_cells = [tuple(cell) for cell in zip(*np.where(grid < BLOCKED_COST))]
+    free_cells: List[Cell] = [(int(r), int(c)) for r, c in zip(*np.where(grid < BLOCKED_COST))]
     rng.shuffle(free_cells)
     used = {cell for obj in objects for cell in obj.cells}
     for _ in range(extra_distractors):

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Set, Tuple
 
-from .data_types import Cell, Environment, GridObject, Path
+from .data_types import Cell, Environment, GridObject
 
 
 @dataclass
@@ -19,9 +19,8 @@ class AffordanceRelationGraph:
         return set(self.object_relations.get(object_id, set()))
 
 
-def _is_near_path(obj: GridObject, path: Path, radius: int = 1) -> bool:
-    """Return whether an object is near a path."""
-    path_set = set(path)
+def _is_near_path(obj: GridObject, path_set: Set[Cell], radius: int = 1) -> bool:
+    """Return whether an object cell is within radius steps of any path cell."""
     for row, col in obj.cells:
         for dr in range(-radius, radius + 1):
             for dc in range(-radius, radius + 1):
@@ -55,10 +54,9 @@ def build_graph(env: Environment, baseline_path: Path | None = None) -> Affordan
         if object_cells & direct:
             obj_rel.add("OnRoute")
             obj_rel.add("BetweenRobotAndGoal")
-        if baseline_set and _is_near_path(obj, list(baseline_set), radius=1):
-            obj_rel.add("NearPath")
-        if object_cells & direct:
             obj_rel.add("BlocksCorridor")
+        if baseline_set and _is_near_path(obj, baseline_set, radius=1):
+            obj_rel.add("NearPath")
         if _distance_to_start(env.start, obj) <= 5.0:
             obj_rel.add("Near")
         relations[obj.object_id] = obj_rel

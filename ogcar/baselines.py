@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random
-from typing import List
+from typing import Iterator, List, Optional, Set, Tuple
 
 from .data_types import Environment, ExplanationFactor, GridObject, Intervention
 from .graph import build_graph
@@ -12,7 +12,7 @@ from .planners import PlannerConfig, plan
 from .reasoner import apply_intervention, route_overlap_deviation
 
 
-def _factor(obj: GridObject, affordance: str, utility: float, admissible: bool, relations=None) -> ExplanationFactor:
+def _factor(obj: GridObject, affordance: str, utility: float, admissible: bool, relations: Optional[Set[str]] = None) -> ExplanationFactor:
     """Create a baseline explanation factor."""
     intervention = Intervention(object_id=obj.object_id, affordance=affordance)
     return ExplanationFactor(
@@ -26,7 +26,7 @@ def _factor(obj: GridObject, affordance: str, utility: float, admissible: bool, 
     )
 
 
-def available_candidates(env: Environment, ontology: AffordanceOntology, semantic_only: bool = True):
+def available_candidates(env: Environment, ontology: AffordanceOntology, semantic_only: bool = True) -> Iterator[Tuple[GridObject, str]]:
     """Yield candidate object--affordance pairs."""
     for obj in env.objects:
         affs = obj.affordances if semantic_only else tuple(set(obj.affordances) | {"movable", "openable", "step_aside"})
