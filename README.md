@@ -1,124 +1,101 @@
-# OG-CAR: Ontology-Guided Counterfactual Affordance Reasoning
+# MACE: Minimal-change Affordance Counterfactual Explanations
 
-This repository contains a lightweight, reproducible Python implementation of **Ontology-Guided Counterfactual Affordance Reasoning (OG-CAR)** for actionable robot navigation explanations.
+This repository contains the full codebase for the paper:
 
-The implementation is designed for the RA-L paper idea:
+> **Ontology-Grounded Minimal-Change Counterfactual Explanations for Multi-Robot Navigation**
 
-> A robot explains navigation failures and deviations by identifying object--affordance state changes that would restore feasibility, reduce path cost, or reduce deviation from a reference route.
+## What is MACE?
 
-## Main Features
+When a robot cannot reach its goal, operators need to know not just *why* it failed but *what they can do about it*. MACE answers this by:
 
-- Procedural robot-librarian grid-world benchmark.
-- Local object and affordance ontology.
-- A*, Dijkstra, weighted A*, and BFS planners.
-- OG-CAR reasoning with counterfactual replanning.
-- Baselines:
-  - random
-  - distance-to-path
-  - occupancy-only
-  - semantic-only
-  - unconstrained perturbation
-  - object-attribution
-- Metrics:
-  - Precision@k
-  - Recall@k
-  - Feasibility Recovery@k
-  - Path-Cost Improvement@k
-  - Deviation Reduction@k
-  - Admissibility@k
-  - Minimality Gap
-- CSV output for experiments.
-- Seaborn plotting script.
+1. Grounding navigation in a formal **OWL 2 ontology** (20 classes, 22 properties) with forward-chaining affordance inference.
+2. Running **A\* + Yen's k-shortest paths** on an affordance-weighted semantic navigation graph.
+3. Applying **minimal-change counterfactual reasoning** to find the smallest property mutations that restore feasibility or reduce path cost.
+4. **Labelling every change** as actionable (open a door, lift a restriction) or structural (widen a corridor, reduce ramp slope), with a three-level effort estimate.
+
+The same pipeline produces robot-specific explanations: affordances — and hence explanations — differ per robot body and capabilities.
 
 ## Repository Structure
 
 ```text
-ogcar_affordance_reasoning/
-├── README.md
-├── requirements.txt
-├── run_experiments.py
-├── plot_results.py
-├── ogcar/
-│   ├── __init__.py
-│   ├── data_types.py
-│   ├── ontology.py
-│   ├── environment.py
-│   ├── graph.py
-│   ├── planners.py
-│   ├── reasoner.py
-│   ├── baselines.py
-│   └── metrics.py
-├── results/
-└── figures/
+og-car/
+├── mace/                        # Main package
+│   ├── semantic/                # Semantic navigation sub-package
+│   │   ├── ontology.py          # OWL 2 ontology + SPARQL interface
+│   │   ├── domain.py            # Affordance types, enums, build_navigation_ontology()
+│   │   ├── affordance.py        # AffordanceReasoner + edge cost function
+│   │   ├── navigation.py        # NavigationGraph, NavNode/Edge/Path, AStarPlanner
+│   │   ├── counterfactual.py    # CounterfactualEngine, PropertyChange, Counterfactual
+│   │   ├── explanation.py       # ExplanationGenerator, NavigationExplanation
+│   │   ├── orchestrator.py      # OntofactNavigator (end-to-end interface)
+│   │   ├── visualization.py     # draw_navigation_graph() — matplotlib figures
+│   │   └── evaluation.py       # Ground truth, baselines, metrics
+│   └── __init__.py
+├── scenarios/
+│   ├── hospital.py              # 9-node hospital (3 robots)
+│   └── warehouse.py             # 9-node warehouse (3 robots)
+├── experiments/
+│   ├── run_mace.py              # Evaluation runner → results/mace_results.csv
+│   └── generate_figures.py      # Paper figures → figures/
+├── paper/                       # LaTeX paper (gitignored)
+├── figures/                     # Generated PDFs/PNGs (gitignored)
+├── my_publications/             # Prior work PDFs (gitignored)
+├── results/                     # Experiment CSVs
+└── requirements.txt
 ```
 
 ## Installation
 
-Create and activate a virtual environment:
-
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
-## Run Main Experiments
+## Run Experiments
 
 ```bash
-python run_experiments.py \
-    --num-envs 1000 \
-    --scenario both \
-    --planner astar \
-    --methods ogcar semantic distance occupancy random unconstrained object_attribution \
-    --k 2 \
-    --seed 42 \
-    --output results/main_results.csv
+PYTHONPATH=. python experiments/run_mace.py --k 3 --output results/mace_results.csv
 ```
 
-For a quick smoke test:
+## Generate Paper Figures
 
 ```bash
-python run_experiments.py --num-envs 20 --scenario both --planner astar --k 2 --output results/smoke_test.csv
+PYTHONPATH=. python experiments/generate_figures.py --output-dir figures/ --dpi 250
 ```
 
-## Plot Results
+Produces `hospital_<robot>.pdf`, `warehouse_<robot>_<goal>.pdf`, and `narrative_example.txt`.
 
-```bash
-python plot_results.py \
-    --input results/main_results.csv \
-    --output-dir figures
-```
+## Scenarios
 
-The script creates Seaborn plots for Precision@k, Recall@k, Feasibility Recovery@k, Cost Improvement@k, and Admissibility@k.
+| Scenario  | Nodes | Robots | Key constraints |
+|-----------|-------|--------|-----------------|
+| Hospital  | 9     | `delivery_bot` (0.6 m, arm), `cargo_bot` (1.1 m), `legged_bot` (0.65 m) | Narrow ICU corridor (0.9 m), closed security door, restricted staff corridor |
+| Warehouse | 9     | `picker_bot` (max slope 8°), `forklift_bot` (1.4 m wide), `tracked_bot` (max slope 25°) | Steep ramp (18°), narrow aisle (0.85 m), wet inspection zone |
 
-## Notes for Paper Experiments
+## Baselines
 
-Recommended experiment groups:
+| Method | Description |
+|--------|-------------|
+| Random | Uniform random ranking of candidate changes |
+| Distance | Rank by Euclidean distance from start |
+| Occupancy | Rank by overlap with chosen-path segments |
+| Semantic | Rank by blocking-affordance severity |
+| Unconstrained | Brute-force: re-run A* for every candidate change |
+| **MACE** | Minimal-change counterfactual reasoning with actionability filtering |
 
-1. **Main comparison**: compare OG-CAR against all baselines.
-2. **Semantic clutter**: vary `--extra-distractors` across values such as `0,2,4,6,8,10,12` by running the script multiple times.
-3. **Ontology degradation**: use missing/noisy affordance functionality as an extension point in `ontology.py`.
-4. **Cross-planner transfer**: generate explanation factors with one planner and evaluate them with another; this is currently prepared structurally but should be expanded in a dedicated script for final experiments.
+## Key Results (k=3)
 
-## Citation Placeholder
+On infeasible tasks with actionable fixes (hospital, cargo/legged bots):
 
-If used in the RA-L paper, cite as the implementation of:
+| Method | P@3 | R@3 | FeasRec |
+|--------|-----|-----|---------|
+| **MACE** | **0.67** | **1.00** | **1.00** |
+| Semantic | 0.33 | 0.50 | 0.00 |
+| Distance / Occupancy / Random | 0.00 | 0.00 | 0.00 |
 
-```bibtex
-@article{halilovic2026ogcar,
-  title={Ontology-Guided Counterfactual Affordance Reasoning for Actionable Robot Navigation Explanations},
-  author={Halilovic, Amar and Krivic, Senka},
-  journal={IEEE Robotics and Automation Letters},
-  year={2026},
-  note={Manuscript in preparation}
-}
-```
+MACE is the only method that correctly identifies zero actionable changes on structurally-constrained tasks (Adm@3 = 0.00), and produces no spurious recommendations when no intervention is needed.
 
 ## License
 
-Add your intended license here, e.g., MIT, BSD-3-Clause, or internal research use only.
+Research use only. Contact the author before redistribution.

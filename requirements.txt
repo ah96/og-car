@@ -1,4 +1,14 @@
+# Core scientific stack
 numpy>=2.0
 pandas>=2.0
 matplotlib>=3.7
 seaborn>=0.13
+
+# Semantic / ontology layer (ogcar.semantic)
+networkx>=3.0
+rdflib>=7.0
+owlrl>=6.0
+pydantic>=2.0
+
+# Optional: Claude API narrative generation in ExplanationGenerator
+anthropic>=0.50.0

@@ -1,7 +1,7 @@
 """Run OG-CAR benchmark experiments.
 
 Example:
-    python run_experiments.py --num-envs 100 --scenario both --planner astar \
+    python experiments/run_grid.py --num-envs 100 --scenario both --planner astar \
         --methods ogcar semantic distance occupancy random unconstrained object_attribution \
         --k 2 --output results/main_results.csv
 """
@@ -14,13 +14,13 @@ from typing import List
 
 import pandas as pd
 
-from ogcar.baselines import run_baseline
-from ogcar.data_types import ScenarioType
-from ogcar.environment import generate_environment
-from ogcar.metrics import compute_metrics
-from ogcar.ontology import AffordanceOntology
-from ogcar.planners import PlannerConfig, plan
-from ogcar.reasoner import OGCarReasoner, ReasonerConfig, compute_ground_truth
+from mace.baselines import run_baseline
+from mace.data_types import ScenarioType
+from mace.environment import generate_environment
+from mace.metrics import compute_metrics
+from mace.ontology import AffordanceOntology
+from mace.planners import PlannerConfig, plan
+from mace.reasoner import OGCarReasoner, ReasonerConfig, compute_ground_truth
 
 SUPPORTED_METHODS = {
     "ogcar",

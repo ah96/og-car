@@ -45,8 +45,8 @@ htmlcov/
 # macOS
 .DS_Store
 
-# Experiment outputs (keep results/ and figures/ dirs but ignore generated files)
+# Generated outputs and private content — full directories excluded
+figures/
+paper/
+my_publications/
 results/*.csv
-figures/*.pdf
-figures/*.png
-figures/*.csv

@@ -1,4 +1,4 @@
-"""OG-CAR: Ontology-Guided Counterfactual Affordance Reasoning."""
+"""MACE: Minimal-change Affordance Counterfactual Explanations."""
 
 from .data_types import (
     Cell,
