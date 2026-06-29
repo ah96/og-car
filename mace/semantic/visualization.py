@@ -104,15 +104,15 @@ def draw_navigation_graph(
     matplotlib.figure.Figure
     """
     if paper_mode:
-        figsize        = (7, 4.2)   # smaller canvas → nodes appear larger at paper scale
+        figsize        = (9.0, 5.6)  # roomy canvas so full node labels fit
         dpi            = max(dpi, 250)
         _title_fs      = 11
-        _node_label_fs = 12
+        _node_label_fs = 10
         _edge_label_fs = 9
         _legend_fs     = 9
-        _sz_start_goal = 1200
-        _sz_active     = 900
-        _sz_base       = 650
+        _sz_start_goal = 1100
+        _sz_active     = 800
+        _sz_base       = 600
     else:
         _title_fs      = 14
         _node_label_fs = 8
@@ -208,7 +208,21 @@ def draw_navigation_graph(
             node_sizes.append(_sz_base)
 
     nx.draw_networkx_nodes(g, pos, node_color=node_colors, node_size=node_sizes, ax=ax)
-    nx.draw_networkx_labels(g, pos, font_size=_node_label_fs, font_color="white", font_weight="bold", ax=ax)
+
+    # Node labels: dark text in a white rounded box, offset just below each node.
+    # Drawing the full name on a box (rather than white text centred on the disk)
+    # keeps long ids like "icu_main"/"mezzanine"/"corridor_a" fully legible and
+    # avoids the white-on-white overflow that truncated earlier figures.
+    _label_dy = 0.055                       # downward offset in normalised coords
+    label_pos = {nid: (x, y - _label_dy) for nid, (x, y) in pos.items()}
+    label_texts = nx.draw_networkx_labels(
+        g, label_pos,
+        font_size=_node_label_fs, font_color="#2c3e50", font_weight="bold", ax=ax,
+        bbox={"boxstyle": "round,pad=0.2", "fc": "white", "alpha": 0.85, "ec": "#bdc3c7"},
+    )
+    for _t in label_texts.values():         # never clip labels at the axes edge
+        _t.set_clip_on(False)
+    ax.margins(0.16)                         # padding so edge-node labels are not cut
 
     # ── Edge cost labels ──────────────────────────────────────────────────────
     if reasoner and agent:
@@ -225,6 +239,7 @@ def draw_navigation_graph(
         nx.draw_networkx_edge_labels(
             g, pos, edge_labels=edge_labels,
             font_size=_edge_label_fs, font_color="#2c3e50", ax=ax,
+            rotate=False,   # keep labels horizontal (so "∞" is not mistaken for "8")
             bbox={"boxstyle": "round,pad=0.2", "fc": "white", "alpha": 0.7, "ec": "none"},
         )
 

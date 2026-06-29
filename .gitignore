@@ -48,5 +48,7 @@ htmlcov/
 # Generated outputs and private content — full directories excluded
 figures/
 paper/
+overleaf/
+reviews/
 my_publications/
 results/*.csv

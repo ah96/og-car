@@ -1,16 +1,16 @@
-# MACE: Minimal-change Affordance Counterfactual Explanations
+# PACE: Priority-guided Affordance Counterfactual Explanations
 
 This repository contains the full codebase for the paper:
 
-> **Ontology-Grounded Minimal-Change Counterfactual Explanations for Multi-Robot Navigation**
+> **Ontology-Grounded Counterfactual Explanations for Heterogeneous Robot Navigation**
 
-## What is MACE?
+## What is PACE?
 
-When a robot cannot reach its goal, operators need to know not just *why* it failed but *what they can do about it*. MACE answers this by:
+When a robot cannot reach its goal, operators need to know not just *why* it failed but *what they can do about it*. PACE answers this by:
 
-1. Grounding navigation in a formal **OWL 2 ontology** (20 classes, 22 properties) with forward-chaining affordance inference.
+1. Grounding navigation in an **OWL 2 ontology** (20 classes, 22 properties) used as a typed property store, with **procedural** forward-chaining affordance inference (numeric passability/clearance checks that lie outside OWL-RL).
 2. Running **A\* + Yen's k-shortest paths** on an affordance-weighted semantic navigation graph.
-3. Applying **minimal-change counterfactual reasoning** to find the smallest property mutations that restore feasibility or reduce path cost.
+3. Applying **priority-guided counterfactual reasoning** (a greedy, priority-ordered search) to find a small set of property mutations that restore feasibility or reduce path cost.
 4. **Labelling every change** as actionable (open a door, lift a restriction) or structural (widen a corridor, reduce ramp slope), with a three-level effort estimate.
 
 The same pipeline produces robot-specific explanations: affordances — and hence explanations — differ per robot body and capabilities.
@@ -21,7 +21,7 @@ The same pipeline produces robot-specific explanations: affordances — and henc
 og-car/
 ├── mace/                        # Main package
 │   ├── semantic/                # Semantic navigation sub-package
-│   │   ├── ontology.py          # OWL 2 ontology + SPARQL interface
+│   │   ├── ontology.py          # OWL 2 vocabulary + RDF property store (incl. optional OWL-RL/SPARQL)
 │   │   ├── domain.py            # Affordance types, enums, build_navigation_ontology()
 │   │   ├── affordance.py        # AffordanceReasoner + edge cost function
 │   │   ├── navigation.py        # NavigationGraph, NavNode/Edge/Path, AStarPlanner
@@ -37,7 +37,9 @@ og-car/
 ├── experiments/
 │   ├── run_mace.py              # Evaluation runner → results/mace_results.csv
 │   └── generate_figures.py      # Paper figures → figures/
-├── paper/                       # LaTeX paper (gitignored)
+├── overleaf/                    # Current LaTeX manuscript source (gitignored)
+├── reviews/                     # Peer-review feedback (gitignored)
+├── paper/                       # Older LaTeX copy (gitignored)
 ├── figures/                     # Generated PDFs/PNGs (gitignored)
 ├── my_publications/             # Prior work PDFs (gitignored)
 ├── results/                     # Experiment CSVs
@@ -82,7 +84,7 @@ Produces `hospital_<robot>.pdf`, `warehouse_<robot>_<goal>.pdf`, and `narrative_
 | Occupancy | Rank by overlap with chosen-path segments |
 | Semantic | Rank by blocking-affordance severity |
 | Unconstrained | Brute-force: re-run A* for every candidate change |
-| **MACE** | Minimal-change counterfactual reasoning with actionability filtering |
+| **PACE** | Priority-guided counterfactual reasoning with actionability filtering |
 
 ## Key Results (k=3)
 
@@ -90,11 +92,11 @@ On infeasible tasks with actionable fixes (hospital, cargo/legged bots):
 
 | Method | P@3 | R@3 | FeasRec |
 |--------|-----|-----|---------|
-| **MACE** | **0.67** | **1.00** | **1.00** |
+| **PACE** | **0.67** | **1.00** | **1.00** |
 | Semantic | 0.33 | 0.50 | 0.00 |
 | Distance / Occupancy / Random | 0.00 | 0.00 | 0.00 |
 
-MACE is the only method that correctly identifies zero actionable changes on structurally-constrained tasks (Adm@3 = 0.00), and produces no spurious recommendations when no intervention is needed.
+On this small two-scenario benchmark, PACE is the only one of the evaluated methods to correctly identify zero actionable changes on structurally-constrained tasks (Adm@3 = 0.00) and to produce no spurious recommendations when no intervention is needed.
 
 ## License
 
